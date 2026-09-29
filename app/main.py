@@ -1,9 +1,9 @@
 from fastapi import FastAPI, UploadFile, HTTPException
-
 from app.config import MAX_FILE_SIZE, SUPPORTED_CONTENT_TYPES
 from app.services.gemini import analyze_photo_image, GeminiQuotaError, GeminiConfigError, GeminiUnavailableError, \
     GeminiTimeoutError
 from app.utils import is_valid_image
+
 
 app = FastAPI()
 

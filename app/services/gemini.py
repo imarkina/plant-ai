@@ -1,13 +1,9 @@
 import asyncio
 
-from google import genai
 from google.genai import types, errors
-from app.config import api_model, api_key, GEMINI_TIMEOUT_SECONDS
+from app.config import api_model, api_key, GEMINI_TIMEOUT_SECONDS, client
 from app.prompts import prompt
 from app.schemas import PlantReport
-
-client = genai.Client(api_key=api_key)
-
 
 class GeminiError(Exception):
     """Базовая ошибка работы с Gemini"""
