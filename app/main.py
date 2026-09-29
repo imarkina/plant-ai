@@ -1,7 +1,9 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 
 from app.config import MAX_FILE_SIZE, SUPPORTED_CONTENT_TYPES
-from app.services.gemini import analyze_photo_image, GeminiQuotaError, GeminiConfigError, GeminiUnavailableError
+from app.services.gemini import analyze_photo_image, GeminiQuotaError, GeminiConfigError, GeminiUnavailableError, \
+    GeminiTimeoutError
+from app.utils import is_valid_image
 
 app = FastAPI()
 
@@ -15,6 +17,9 @@ async def create_upload_file(file: UploadFile):
         raise HTTPException(status_code=400, detail="No image")
 
     file_image_bytes = await file.read()
+
+    if not is_valid_image(file_image_bytes):
+        raise HTTPException(status_code=422, detail="Invalid image")
 
     try:
         return await analyze_photo_image(file_image_bytes, file.content_type)
@@ -33,4 +38,9 @@ async def create_upload_file(file: UploadFile):
         raise HTTPException(
             status_code=502,
             detail="Сервис недоступен, попробуйте позже",
+        ) from e
+    except GeminiTimeoutError as e:
+        raise HTTPException(
+            status_code=504,
+            detail="Превышено время ожидания",
         ) from e
