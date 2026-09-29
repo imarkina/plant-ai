@@ -11,7 +11,7 @@ def get_currency_rate(currency_id: int) -> list[str]:
     """Возвращает курс валют"""
     print(f">>> Вызвана get_currency_rate(currency_id={currency_id})")
     return ["100", "200"]
-
+# test
 async def analyze_text(question: str):
     response = await client.aio.models.generate_content(
         model=api_model,
