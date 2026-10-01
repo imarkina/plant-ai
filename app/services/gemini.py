@@ -1,7 +1,7 @@
 import asyncio
 
 from google.genai import types, errors
-from app.config import api_model, api_key, GEMINI_TIMEOUT_SECONDS, client
+from app.config import GEMINI_MODEL, GEMINI_API_KEY, GEMINI_TIMEOUT_SECONDS, client
 from app.prompts import prompt
 from app.schemas import PlantReport
 
@@ -24,7 +24,7 @@ async def analyze_photo_image(image_bytes, content_type):
     try:
         result = await asyncio.wait_for(
              client.aio.models.generate_content(
-                model=api_model,
+                model=GEMINI_MODEL,
                 config=types.GenerateContentConfig(
                     response_mime_type='application/json',
                     response_schema=PlantReport,
