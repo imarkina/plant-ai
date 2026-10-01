@@ -49,4 +49,5 @@ async def analyze_photo_image(image_bytes, content_type):
     if result.parsed is None:
         raise ("Ответ не соответствует схеме")
 
+    print(result.usage_metadata)
     return result.parsed
