@@ -20,6 +20,10 @@ def get_currency_rate(currency_id: int) -> list[str]:
 def get_plant_info(plant_id: int) -> dict:
     """Возвращает информацию о растении по его id: вид, горшок, расположение."""
     print(f">>> Вызвана get_plant_info(plant_id={plant_id})")
+
+    if plant_id != 42:
+        raise ValueError(f'Растение с plant_id={plant_id} не найдено')
+
     return {"species": "Hoya carnosa", "pot": "пластик без дренажа", "location": "северное окно"}
 
 
@@ -55,15 +59,22 @@ async def run_agent(question: str):
 
         for call in response.function_calls:
             print('кол', call.name, call.args)
-            result = TOOLS[call.name](**call.args)
-            print(f'результат вызова {call.name}: {result}')
-            parts.append(types.Part.from_function_response(  # ←
-                name=call.name, response={"result": result},
-            ))
+            try:
+                result = TOOLS[call.name](**call.args)
+                print(f'результат вызова {call.name}: {result}')
+                parts.append(types.Part.from_function_response(  # ←
+                    name=call.name, response={"result": result},
+                ))
+            except Exception as e:
+                parts.append(types.Part.from_function_response(  # ←
+                    name=call.name, response={"error":  str(e)},
+                ))
+                print(e)
 
         contents.append(types.Content(role="user", parts=parts))
 
     return "Агент не смог ответить за отведённое число шагов"
+
 
 async def analyze_text(question: str):
     config = types.GenerateContentConfig(
@@ -97,4 +108,4 @@ async def analyze_text(question: str):
 
 
 if __name__ == "__main__":
-    asyncio.run(run_agent("Я поливаю хойю с id 42. Не слишком ли часто?"))
+    asyncio.run(run_agent("Я поливаю растение с id 999 каждые 3 дня. Ему ок с его горшком и местом?"))
