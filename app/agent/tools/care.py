@@ -1,7 +1,7 @@
 from typing import Literal
 from app.services.supabase import get_supabase
 from datetime import datetime, timedelta, timezone
-
+from zoneinfo import ZoneInfo
 
 def make_care_tools(user_id: str) -> dict:
     async def get_today_tasks() -> list[dict]:
@@ -64,16 +64,30 @@ def make_care_tools(user_id: str) -> dict:
         if not res.data:
             raise ValueError("У этого растения нет задачи такого типа")
 
-        await db.table("plant_care_logs").insert({
-            "plant_id": plant_id,
-            "user_id": user_id,
-            "type": care_type,
-            "performed_at": now,
-        }).execute()
-
         return {"plant_id": plant_id, "care_type": care_type, "done_at": now}
+
+    async def get_watering_history(plant_id: str) -> list[str]:
+        """Возвращает даты последних поливов растения по его id"""
+        db = await get_supabase()
+
+        res = await (
+            db.table("plant_care_logs")
+            .select("performed_at")
+            .eq("user_id", user_id)
+            .eq("plant_id", plant_id)
+            .eq("type", "watering")
+            .order("performed_at", desc=True)
+            .limit(10)
+            .execute()
+        )
+
+        return [
+            datetime.fromisoformat(row["performed_at"]).astimezone(ZoneInfo("Europe/Moscow")).isoformat()
+            for row in res.data
+        ]
 
     return {
         "get_today_tasks": get_today_tasks,
-        'mark_task_done': mark_task_done,
+        "mark_task_done": mark_task_done,
+        "get_watering_history": get_watering_history,
     }

@@ -35,14 +35,8 @@ def make_plant_tools(user_id: str) -> dict:
 
         return {"species": "Hoya carnosa", "pot": "пластик без дренажа", "location": "северное окно"}
 
-    async def get_watering_history(plant_id: int) -> list[str]:
-        """Возвращает даты последних поливов растения по его id"""
-        print(f">>> Вызвана get_watering_history(plant_id={plant_id})")
-        return ["2026-09-20", "2026-09-23", "2026-09-27"]
-
     return {
         "get_plant_info": get_plant_info,
         "get_user_location": get_user_location,
         "list_plants": list_plants,
-        "get_watering_history": get_watering_history
     }
